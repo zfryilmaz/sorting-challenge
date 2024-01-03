@@ -20,7 +20,7 @@ app.get('/', (req, res) => {
 //})
 
 app.get('/getResults', (req, res) => {
-    const fileName = '/tmp/results.json';
+    const fileName = '/results.json';
 
     fs.readFile(fileName, 'utf8', (err, data) => {
         if (err) {
