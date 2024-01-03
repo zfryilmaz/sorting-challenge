@@ -35,7 +35,7 @@ app.get('/getResults', (req, res) => {
 
 app.post('/saveResults', cors(), (req, res) => {
     const results = req.body;
-    const fileName = '/tmp/results.json';
+    const fileName = 'results.json';
     //const filePath = path.join(__dirname, fileName);
 
 
