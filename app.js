@@ -38,7 +38,7 @@ app.post('/saveResults', cors(), (req, res) => {
     const fileName = 'results.json';
     //const filePath = path.join(__dirname, fileName);
 
-
+    console.log('Veriler geldi  : ' + results);
     try {
         // Append new results to the file
         fs.appendFileSync(fileName, JSON.stringify(results) + '\n');
