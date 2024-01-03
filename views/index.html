@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sort Characters Challenge</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            background-color: #db9034;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        #teamInfo {
+            margin-bottom: 20px;
+        }
+
+        .char-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .char {
+            margin: 5px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            background-color: #fff;
+            user-select: none;
+        }
+
+        .char:hover {
+            background-color: #f0f0f0;
+        }
+
+        .sorted-char {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        #startButton {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+
+        #feedback {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+    <script>
+
+        let characters = [
+            'Z', '9', '#', ']', 'K', 'I', '6', 'Y', '0', '8',
+            'F', 'X', '{', 'P', '1', 'S', '>', '|', 'W', 'H',
+            '4', 'G', '5', 'E', '3', 'V', 'J', '7', '2', 'N',
+            'O', 'A', 'Q', '!', 'U', '$', 'B', 'D', '[', 'T',
+            '!', 'C', 'R', 'L', '+', 'M', '}', '=', '<', '@'
+        ];
+        const charactersAnswer = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+        let currentCharacterIndex = 0;
+        let currentRound = 1;
+        const totalRounds = 10;
+
+        let teamSize;
+        let taskCount;
+
+        let roundStartTime;
+        let results = [];
+
+        function startSorting() {
+
+            initializeCharacters();
+
+            document.getElementById('startButton').style.display = 'none';
+            document.getElementById('charContainer').style.display = 'flex';
+
+            document.getElementById('round').innerText = 'Round 1';
+
+            showTeamInfo(); // Show team information when sorting starts
+            roundStartTime = new Date().getTime();
+        }
+
+        // Function to initialize the characters on page load
+        function initializeCharacters() {
+            const charContainer = document.getElementById('charContainer');
+
+            // Render the shuffled characters
+            characters.forEach(char => {
+                const charElement = document.createElement('div');
+                charElement.classList.add('char');
+                charElement.setAttribute('data-char', char);
+                charElement.textContent = char;
+                charElement.addEventListener('click', function () {
+                    sortCharacter(this);
+                });
+
+                charContainer.appendChild(charElement);
+            });
+        }
+
+        function sortCharacter(clickedChar) {
+            const clickedCharValue = clickedChar.getAttribute('data-char');
+
+            // Check if the clicked character matches the correct character at the current index
+            if (clickedCharValue === charactersAnswer[currentCharacterIndex]) {
+                showFeedback('Correct! Next character.');
+                currentCharacterIndex++;
+
+                // Add a class to the correctly guessed character to style it differently
+                clickedChar.classList.add('sorted-char');
+
+                // Check if all characters are sorted
+                if (currentCharacterIndex === charactersAnswer.length) {
+
+                    // time
+                    let complitionTime = new Date().getTime() - roundStartTime;
+
+                    // collect the result
+                    results.push([teamSize, taskCount, Math.floor(complitionTime / 1000)]); // in ssec
+
+                    // display the messages
+                    showFeedback(`Congratulations! Round ${currentRound} completed. Please continue with the next round.`);
+                    document.getElementById('round').innerText = `Round ${currentRound + 1}`;
+
+                    // Check if all rounds are completed
+                    if (currentRound === totalRounds) {
+                        showFeedback('Congratulations! You completed all rounds. Thank you!');
+                        document.getElementById('charContainer').style.display = 'none';
+                        document.getElementById('round').style.display = 'none';
+                        publish(results);
+
+                    } else {
+                        // Move to the next round
+                        currentRound++;
+                        resetRound();
+                    }
+                }
+            } else {
+                showFeedback('Incorrect order. Please try again.');
+            }
+        }
+
+        function showFeedback(message) {
+            document.getElementById('feedback').innerText = message;
+        }
+
+        function resetRound() {
+
+            currentCharacterIndex = 0;
+
+            // Shuffle the characters array using Fisher-Yates algorithm for the new round
+            for (let i = characters.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [characters[i], characters[j]] = [characters[j], characters[i]];
+            }
+
+            // Render the shuffled characters for the new round
+            const charElements = document.querySelectorAll('.char');
+            charElements.forEach((charElement, i) => {
+                charElement.classList.remove('sorted-char');
+                charElement.textContent = characters[i];
+                charElement.setAttribute('data-char', characters[i]);
+            });
+
+            // reset the time as well.
+            roundStartTime = new Date().getTime();
+        }
+
+        function randomIntFromInterval(min, max) { // min and max included 
+            return Math.floor(Math.random() * (max - min + 1) + min)
+        }
+
+        function showTeamInfo() {
+            const teamInfoElement = document.getElementById('teamInfo');
+            teamSize = Math.random() < 0.5 ? 50 : randomIntFromInterval(3, 10); // 50 or 3-10
+            taskCount = Math.random() < 0.5 ? 0 : randomIntFromInterval(100, 200); // 0 or 100 -200
+            const teamSizeMessage = `Team Size: ${teamSize} People`;
+            const tasksMessage = taskCount == 0 ? '' : ` | Tasks Awaiting for the team: ${taskCount} tasks`;
+
+            teamInfoElement.innerHTML = ` <p>${teamSizeMessage} ${tasksMessage} </p> `;
+        }
+
+        async function publish(results) {
+            // Send the results array to the server
+
+            const response = await fetch(`https://sorting-challenge.vercel.app/saveResults`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    "Access-Control-Allow-Origin": "*"
+                },
+                body: JSON.stringify(results),
+            });
+
+
+        }        
+    </script>
+</head>
+
+<body>
+    <header>
+        <h1>Sorting Challenge</h1>
+        <h4>You are a part of a team that performs sorting tasks for the letters.</h4>
+        <h4>The tasks are pooled for the team and will be assigned to you as you complete each task.
+            Prolific completion code: C1185QXB</h4>
+    </header>
+
+    <div id="teamInfo"></div>
+
+    <div id="question">Sort the following symbols in ascending order:</div>
+    <p></p>
+    <div id="round"></div>
+
+    <button id="startButton" onclick="startSorting()">Start The Challange</button>
+
+    <div id="charContainer" style="display: none;" class="char-container">
+    </div>
+
+    <div id="feedback"></div>
+
+</body>
+
+</html>
